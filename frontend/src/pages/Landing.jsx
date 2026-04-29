@@ -967,7 +967,7 @@ function KanbanCard({ card, index, rightIn }) {
         background: "#1e1e1e",
         border: "1px solid #2a2a2a",
         borderLeft: isInProgress ? "2px solid #c9a84c" : "1px solid #2a2a2a",
-        padding: "6px 10px",
+        padding: "4px 10px 5px",
         opacity: rightIn ? (done ? 0.7 : 1) : 0,
         transform: rightIn ? "translateY(0)" : "translateY(8px)",
         transition: `opacity .7s cubic-bezier(.16,1,.3,1) ${0.45 + index * 0.05}s, transform .7s cubic-bezier(.16,1,.3,1) ${0.45 + index * 0.05}s, border-color .25s, background-color .25s`,
@@ -1004,7 +1004,7 @@ function KanbanCard({ card, index, rightIn }) {
 
       <div
         style={{
-          marginTop: 4,
+          marginTop: 2,
           fontSize: 11,
           lineHeight: 1.2,
           color: "#f2edd8",
@@ -1020,7 +1020,7 @@ function KanbanCard({ card, index, rightIn }) {
 
       <div
         className="flex items-center justify-between"
-        style={{ marginTop: 4, gap: 6 }}
+        style={{ marginTop: 2, gap: 6 }}
       >
         <span
           className="data flex items-center gap-1"
