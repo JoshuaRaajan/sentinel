@@ -78,6 +78,19 @@ changes.
   + "Last updated — 2 hours ago".
 - Card hover translateY(-2px), border brightens.
 
+## Dual-view density pass — 2026-02-Feb (iterations 4-6)
+- Both panels locked to height 480px, equal-aligned.
+- Section padding reduced (py-24/32 → py-16/20).
+- Right kanban: header compact (16px serif title, 20px avatars, 3px progress
+  bar), columns gap-2 with overflow-y auto, count badges 14px circle, columns
+  padding 10px, cards padding 4px 10px 5px with 2px title/footer margins,
+  title 11px / 1.2 lh / -webkit-line-clamp 2, inline "X/Y subtasks" text
+  instead of a block progress bar, 18px assignee avatars, 9px category tags.
+- Final card heights 74-79px (well under the 80px ceiling).
+- Left panel tightened: 18×20 padding, scope bar 3px height, task rows
+  7px×10px padding 12px text, alert pinned to bottom with 6×10 padding,
+  internal scroll if 6+ tasks listed.
+
 ## P0 backlog (next up)
 - Real auth (magic link via Resend; env-driven `AUTH_PROVIDER`).
 - MongoDB persistence layer behind the same client API.
