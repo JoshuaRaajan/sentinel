@@ -1070,8 +1070,8 @@ function Testimonials() {
                 "{c.quote}"
               </p>
               <div
-                className="label mt-8"
-                style={{ color: "var(--muted)" }}
+                className="data mt-8 text-[12px]"
+                style={{ color: "var(--muted)", letterSpacing: "0.05em" }}
               >
                 — {c.who}
               </div>

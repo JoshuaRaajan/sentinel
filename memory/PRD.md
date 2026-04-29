@@ -47,6 +47,22 @@ changes.
 - Change Order modal with typewriter render, Copy & Send buttons.
 - Lumière demo project seeded automatically on first visit to `/app`.
 
+## Landing redesign — 2026-02-Feb (iteration 2)
+- Complete visual rebuild of `/` to a Notion-dark editorial product page,
+  scoped to `.landing-dark` + `body.landing` so the warm in-product theme is
+  untouched.
+- New palette (#191919 / #202020 / #252525 / #c9a84c gold / #f2edd8 cream /
+  #c0392b red / #7a9e6e sage), Fraunces serif headlines, Inter body, IBM Plex
+  Mono labels.
+- Scroll-triggered reveals via `useReveal.js` (IntersectionObserver), staggered
+  via `data-d` attribute, smooth 0.9s cubic-bezier(0.16,1,0.3,1).
+- Floating animated hero product card (scope bar fills 0→73%, OOS rows render
+  with red badges, AT RISK pill).
+- Marquee live-ticker with $284,737 figure (alternating gold / muted text).
+- Card-lift hover, slide-in button hover, custom dark scrollbar (gold thumb on
+  hover), trailing cursor dot (desktop only).
+- All original copy preserved verbatim.
+
 ## P0 backlog (next up)
 - Real auth (magic link via Resend; env-driven `AUTH_PROVIDER`).
 - MongoDB persistence layer behind the same client API.
