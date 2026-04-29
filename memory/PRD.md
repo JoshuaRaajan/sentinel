@@ -63,6 +63,21 @@ changes.
   hover), trailing cursor dot (desktop only).
 - All original copy preserved verbatim.
 
+## Client Kanban panel — 2026-02-Feb (iteration 3)
+- Replaced the right "WHAT THEY SEE" panel of the dual-view section with a
+  premium Linear-meets-Trello kanban (`<ClientKanban />` in Landing.jsx).
+- Project header: serif title, sage ON TRACK pill, gold DUE MAY 20 pill,
+  stacked JR/AL/KP avatars, 68% gradient progress bar (sage→gold).
+- 3 columns over #141414 background; cards over #1e1e1e with category tags
+  (DESIGN sage / DEVELOPMENT gold / CONTENT orange / REVIEW blue), title,
+  optional X/Y subtask progress bar, clock-icon due dates, priority dots
+  (red/gold/green), assignee avatar circle.
+- IN PROGRESS cards have a 2px gold left border. DONE cards rendered at
+  opacity 0.7 with check-icon completion dates.
+- Bottom status bar: red 2 BLOCKERS / gold 3 IN PROGRESS / green 4 COMPLETED
+  + "Last updated — 2 hours ago".
+- Card hover translateY(-2px), border brightens.
+
 ## P0 backlog (next up)
 - Real auth (magic link via Resend; env-driven `AUTH_PROVIDER`).
 - MongoDB persistence layer behind the same client API.
