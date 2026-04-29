@@ -1,0 +1,60 @@
+{
+  "summary": "Re-test of KanbanCard height fix. Improvements verified (line-height 1.2, padding 6px top/bottom, -webkit-line-clamp:2 applied), but cards STILL exceed the 80px ceiling. New range: 81.4-85.9px (down from 91.7-96.2px in iter4). Spec requires <=80px — 9/9 cards FAIL. Backend /api/health = 200.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ClientKanban / KanbanCard",
+        "issue": "All 9 kanban cards still exceed the 80px height ceiling after the tightening fix. Measured heights: TO DO (2 cards) 85.9px each, IN PROGRESS (3 cards) 85.9px each, DONE (4 cards) 81.4px each. Required: <=80px. Verified styles ARE applied: paddingTop=6px, paddingBottom=6px, title fontSize=11px, lineHeight=13.2px (1.2 ratio), -webkit-line-clamp=2, -webkit-box-orient=vertical, overflow=hidden. Even the DONE cards with single-line titles (e.g., 'Wireframes — all 8 pages approved', 'Brand guidelines and asset handoff') are 81.4px — 1.4px over the cap, meaning the non-title chrome (tag row + title margin + footer margin + footer row + 12px vertical padding) alone already pushes ~81px before any 2-line wrapping. Two-line title cards add ~4.5px more (note: less than a full 13.2px line, suggesting clamp constraint is partially helping but the baseline is still over).",
+        "selector": "[data-testid='client-kanban'] [data-hover]",
+        "priority": "HIGH",
+        "measurements": {
+          "card_1_to_do_build_contact_form": "85.9px",
+          "card_2_to_do_final_copywriting": "85.9px",
+          "card_3_in_progress_services_page": "85.9px",
+          "card_4_in_progress_mobile_responsiveness": "85.9px",
+          "card_5_in_progress_client_feedback": "85.9px",
+          "card_6_done_wireframes": "81.4px",
+          "card_7_done_homepage_build": "81.4px",
+          "card_8_done_brand_guidelines": "81.4px",
+          "card_9_done_logo_variations": "81.4px"
+        }
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/kanban_iter5.png"],
+  "action_items": [
+    "Card baseline (single-line title) is already 81.4px — 1.4px over the 80px cap. To get under 80px on every card you need to shave ~6px off the 2-line cards and ~2px off the 1-line cards. Recommended additional tightening (any one or combination): (a) reduce card padding from 6px to 4px top/bottom (saves 4px), (b) drop title marginTop and footer marginTop from 4 to 2 each (saves 4px), (c) drop tag row fontSize from 9 to 8 / padding 2px 6px to 1px 5px (saves ~2-3px), (d) switch -webkit-line-clamp from 2 to 1 with text-overflow:ellipsis so titles never wrap (saves 13.2px on the worst cards but loses readability on long titles), (e) shorten title strings to fit in one line at 178px column width.",
+    "NOTE: card width measured at 178px, not the assumed ~210px. Column is narrower in render; that's why most titles still wrap to 2 lines."
+  ],
+  "critical_code_review_comments": [
+    "The webkit clamp setup uses display:flow-root in the computed style snapshot, not display:-webkit-box. Modern browsers still honour -webkit-line-clamp on flow-root in some cases, but the canonical recipe is display:-webkit-box + -webkit-box-orient:vertical. Verify the title element has display set explicitly to '-webkit-box'; if it's relying on author-default and the browser is reporting flow-root, the clamp might not be enforced consistently across browsers.",
+    "Carryover from iter4: SubtaskBar component still defined in Landing.jsx but unused. Landing.jsx still >1700 lines."
+  ],
+  "verified_specs_iter5": {
+    "card_padding": "6px top/bottom (computed) — matches fix spec",
+    "title_line_height": "13.2px = 1.2 ratio at 11px font — matches fix spec",
+    "title_font_size": "11px — verified",
+    "webkit_line_clamp": "value '2' applied on title — verified",
+    "webkit_box_orient": "vertical — verified",
+    "overflow_hidden_on_title": "verified",
+    "panel_alignment": "outer .split.right panel = 480px tall, parent grid row = 480px — both panels still 480 (the inner kanban CONTENT div is 417.5px which is correct since the panel includes header chrome above the kanban)",
+    "backend_health": "/api/health -> 200 {status:ok, llm_configured:true, llm_model:claude-sonnet-4-5-20250929}"
+  },
+  "updated_files": [],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "0% on the requested measurement (9/9 cards over 80px cap). All other iter4-verified specs still hold."
+  },
+  "test_credentials": "n/a",
+  "seed_data_creation": "none",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Card heights now 81.4 (single-line title) to 85.9 (two-line title) — improved ~10px from iter4 but still over the 80px cap. Title CSS confirmed: fontSize 11, lineHeight 13.2 (1.2), -webkit-line-clamp 2, padding 6px/6px. Column inner width is 178px (narrower than the ~210px assumed). The single-line baseline (81.4px) means just tightening padding/margins is the cleanest path to <=80px; 2px reduction anywhere (e.g., padding 6->4 OR title margin 4->2 + footer margin 4->2) takes single-line cards under 80, and combined with the existing clamp keeps two-line cards under too. Use page.evaluate with simple JS strings — multiline triple-quoted JS via page.evaluate can trip the script wrapper parser; pass as a single-line string. Skip entry animation with: document.querySelectorAll('.r, .split, .story-bar').forEach(el => el.classList.add('in', 'go')); then scroll to [data-testid='client-kanban'] and measure [data-hover] children.",
+  "rca_of_the_issue": "Bug: kanban cards still 81.4-85.9px tall, over the 80px requirement. Root cause split into two parts: (1) Single-line baseline 81.4px = 6px topPad + ~12px tag row (9px font + 2*2px padding + ~3px line-height) + 4px title marginTop + 13.2px title (1 line) + 4px footer marginTop + ~14px footer row + 6px botPad ≈ ~59px theoretical, but real ~81 due to flex/grid spacing and natural inline-block leading on small text. The chrome alone busts the cap by 1.4px. (2) Two-line title cards add only ~4.5px (not full 13.2px) because clamp engages but renders a partial second line, putting them at 85.9px. Mitigation: any 2px reduction in a non-title element (padding 6->4, or marginTop 4->2 on either title or footer) brings single-line cards under 80px; combined with the already-applied clamp this keeps two-line cards under as well. Alternative: clamp to 1 line entirely (single-line ellipsis) — most aggressive, single 13.2px savings on worst cards, but trades off legibility."
+}
