@@ -641,7 +641,7 @@ function TwoViews() {
 
   return (
     <section
-      className="px-6 py-24 lg:py-32"
+      className="px-6 py-16 lg:py-20"
       style={{ borderTop: "1px solid var(--line)" }}
       data-testid="two-views-section"
     >
@@ -649,26 +649,34 @@ function TwoViews() {
         <div className="r label text-center" style={{ color: "var(--gold)" }}>
           / DUAL VIEW
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
           <div
             ref={leftRef}
             className={`split left ${leftIn ? "in" : ""}`}
             style={{
               background: "var(--surface)",
               border: "1px solid var(--line)",
-              padding: "32px 28px",
+              padding: "18px 20px",
+              height: 480,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
             }}
           >
             <div className="label" style={{ color: "var(--red)" }}>
               / WHAT YOU SEE
             </div>
-            <div className="mt-6 flex items-center justify-between label" style={{ color: "var(--muted)" }}>
+            <div
+              className="mt-4 flex items-center justify-between label"
+              style={{ color: "var(--muted)" }}
+            >
               <span>SCOPE USED</span>
               <span style={{ color: "var(--red)" }}>89%</span>
             </div>
             <div
-              className="mt-2 h-[6px]"
+              className="mt-1.5"
               style={{
+                height: 3,
                 background: "var(--surface-2)",
                 border: "1px solid var(--line)",
                 position: "relative",
@@ -685,15 +693,21 @@ function TwoViews() {
                 }}
               />
             </div>
-            <div className="mt-6 space-y-3">
+            <div
+              className="mt-4 space-y-1.5"
+              style={{ flex: 1, overflowY: "auto" }}
+            >
               {[
                 ["Build About + Services", "in"],
                 ["Add chatbot", "out", "f1"],
                 ["Mobile redesign", "out", "f2"],
+                ["Hero animation polish", "in"],
+                ["Wire CMS integration", "in"],
+                ["Add dark mode toggle", "out", "f1"],
               ].map((t, i) => (
                 <div
                   key={i}
-                  className={t[1] === "out" ? `split-flag ${t[2]}` : ""}
+                  className={t[1] === "out" ? `split-flag ${t[2] || ""}` : ""}
                   style={{
                     background:
                       t[1] === "out" ? "rgba(192,57,43,0.07)" : "transparent",
@@ -702,33 +716,46 @@ function TwoViews() {
                       t[1] === "out"
                         ? "2px solid var(--red)"
                         : "1px solid var(--line)",
-                    padding: "10px 14px",
+                    padding: "7px 10px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
+                    gap: 8,
                   }}
                 >
                   <span
-                    className="text-[14px]"
-                    style={{ color: "var(--text)" }}
+                    className="truncate"
+                    style={{ color: "var(--text)", fontSize: 12 }}
                   >
                     {t[0]}
                   </span>
                   <span
-                    className="label"
+                    className="data"
                     style={
                       t[1] === "out"
                         ? {
                             color: "var(--red)",
                             background: "rgba(192,57,43,0.12)",
                             border: "1px solid rgba(192,57,43,0.45)",
-                            padding: "3px 8px",
+                            padding: "2px 6px",
+                            fontSize: 9,
+                            letterSpacing: "0.14em",
+                            textTransform: "uppercase",
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                            flexShrink: 0,
                           }
                         : {
                             color: "var(--sage)",
                             background: "rgba(122,158,110,0.10)",
                             border: "1px solid rgba(122,158,110,0.35)",
-                            padding: "3px 8px",
+                            padding: "2px 6px",
+                            fontSize: 9,
+                            letterSpacing: "0.14em",
+                            textTransform: "uppercase",
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                            flexShrink: 0,
                           }
                     }
                   >
@@ -738,12 +765,17 @@ function TwoViews() {
               ))}
             </div>
             <div
-              className="mt-5 px-3 py-2 label"
+              className="data mt-3"
               style={{
                 background: "rgba(192,57,43,0.10)",
                 color: "var(--red)",
                 border: "1px solid rgba(192,57,43,0.45)",
+                padding: "6px 10px",
+                fontSize: 10,
                 letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                fontWeight: 600,
+                flexShrink: 0,
               }}
             >
               SCOPE CREEP DETECTED — $1,800 UNBILLED
@@ -756,7 +788,11 @@ function TwoViews() {
             style={{
               background: "#191919",
               border: "1px solid var(--line)",
-              padding: 24,
+              padding: 16,
+              height: 480,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
             }}
           >
             <div className="label" style={{ color: "var(--muted)" }}>
@@ -766,7 +802,7 @@ function TwoViews() {
           </div>
         </div>
 
-        <div className="mt-16 text-center">
+        <div className="mt-10 text-center">
           <h3
             className="display r text-4xl lg:text-6xl"
             style={{ color: "var(--text)" }}
@@ -931,10 +967,10 @@ function KanbanCard({ card, index, rightIn }) {
         background: "#1e1e1e",
         border: "1px solid #2a2a2a",
         borderLeft: isInProgress ? "2px solid #c9a84c" : "1px solid #2a2a2a",
-        padding: 10,
+        padding: "8px 10px",
         opacity: rightIn ? (done ? 0.7 : 1) : 0,
         transform: rightIn ? "translateY(0)" : "translateY(8px)",
-        transition: `opacity .7s cubic-bezier(.16,1,.3,1) ${0.45 + index * 0.06}s, transform .7s cubic-bezier(.16,1,.3,1) ${0.45 + index * 0.06}s, border-color .3s, background-color .3s`,
+        transition: `opacity .7s cubic-bezier(.16,1,.3,1) ${0.45 + index * 0.05}s, transform .7s cubic-bezier(.16,1,.3,1) ${0.45 + index * 0.05}s, border-color .25s, background-color .25s`,
         cursor: "default",
       }}
       onMouseEnter={(e) => {
@@ -955,8 +991,8 @@ function KanbanCard({ card, index, rightIn }) {
           <span
             title={`${card.prio} priority`}
             style={{
-              width: 7,
-              height: 7,
+              width: 6,
+              height: 6,
               borderRadius: "50%",
               background: pri,
               display: "inline-block",
@@ -967,10 +1003,10 @@ function KanbanCard({ card, index, rightIn }) {
       </div>
 
       <div
-        className="mt-2"
         style={{
-          fontSize: 12,
-          lineHeight: 1.4,
+          marginTop: 5,
+          fontSize: 11,
+          lineHeight: 1.35,
           color: "#f2edd8",
           fontWeight: 500,
         }}
@@ -978,31 +1014,37 @@ function KanbanCard({ card, index, rightIn }) {
         {card.title}
       </div>
 
-      {card.subs && (
-        <div className="mt-2.5">
-          <SubtaskBar done={card.subs[0]} total={card.subs[1]} />
-        </div>
-      )}
-
       <div
-        className="mt-3 flex items-center justify-between"
-        style={{
-          paddingTop: 8,
-          borderTop: "1px solid #262626",
-        }}
+        className="flex items-center justify-between"
+        style={{ marginTop: 6, gap: 6 }}
       >
         <span
-          className="data flex items-center gap-1.5"
+          className="data flex items-center gap-1"
           style={{
-            fontSize: 10,
+            fontSize: 9,
             color: done ? "#7a9e6e" : "#8b8b8b",
             letterSpacing: "0.04em",
+            flexShrink: 0,
           }}
         >
-          {done ? <CheckIcon /> : <ClockIcon />}
+          {done ? <CheckIcon size={9} /> : <ClockIcon size={9} />}
           <span>{done ? card.doneDate : card.due}</span>
         </span>
-        {card.who && <Avatar id={card.who} />}
+        {card.subs && (
+          <span
+            className="data truncate"
+            style={{
+              fontSize: 9,
+              color: "#8b8b8b",
+              letterSpacing: "0.04em",
+              flex: 1,
+              textAlign: "center",
+            }}
+          >
+            {card.subs[0]}/{card.subs[1]} subtasks
+          </span>
+        )}
+        {card.who && <Avatar id={card.who} size={18} />}
       </div>
     </div>
   );
@@ -1017,12 +1059,13 @@ function KanbanColumn({ title, count, cards, rightIn, startIndex }) {
         padding: 10,
         display: "flex",
         flexDirection: "column",
-        gap: 8,
+        gap: 6,
+        minHeight: 0,
       }}
     >
       <div
         className="flex items-center justify-between"
-        style={{ marginBottom: 4 }}
+        style={{ marginBottom: 2 }}
       >
         <span
           className="data"
@@ -1039,11 +1082,18 @@ function KanbanColumn({ title, count, cards, rightIn, startIndex }) {
         <span
           className="data"
           style={{
-            fontSize: 9,
+            width: 14,
+            height: 14,
+            borderRadius: "50%",
             background: "#202020",
             border: "1px solid #2a2a2a",
-            padding: "1px 6px",
             color: "#8b8b8b",
+            fontSize: 9,
+            fontWeight: 600,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
           }}
         >
           {count}
@@ -1139,35 +1189,49 @@ function ClientKanban({ rightIn }) {
   ];
 
   return (
-    <div className="mt-5" data-testid="client-kanban">
+    <div
+      className="mt-3"
+      data-testid="client-kanban"
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+        gap: 10,
+      }}
+    >
       {/* Project header */}
       <div
         style={{
           background: "#141414",
           border: "1px solid #242424",
-          padding: 16,
+          padding: 10,
+          flexShrink: 0,
         }}
       >
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div
               className="display"
               style={{
-                fontSize: 22,
+                fontSize: 16,
                 color: "#f2edd8",
                 lineHeight: 1.1,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
               Lumière Brand Website
             </div>
-            <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
               <span
-                className="data flex items-center gap-1.5"
+                className="data flex items-center gap-1"
                 style={{
                   background: "rgba(122,158,110,0.12)",
                   color: "#7a9e6e",
                   border: "1px solid rgba(122,158,110,0.45)",
-                  padding: "3px 8px",
+                  padding: "2px 6px",
                   fontSize: 9,
                   letterSpacing: "0.14em",
                   textTransform: "uppercase",
@@ -1176,8 +1240,8 @@ function ClientKanban({ rightIn }) {
               >
                 <span
                   style={{
-                    width: 5,
-                    height: 5,
+                    width: 4,
+                    height: 4,
                     borderRadius: "50%",
                     background: "#7a9e6e",
                     display: "inline-block",
@@ -1186,42 +1250,42 @@ function ClientKanban({ rightIn }) {
                 ON TRACK
               </span>
               <span
-                className="data flex items-center gap-1.5"
+                className="data flex items-center gap-1"
                 style={{
                   background: "rgba(201,168,76,0.12)",
                   color: "#c9a84c",
                   border: "1px solid rgba(201,168,76,0.45)",
-                  padding: "3px 8px",
+                  padding: "2px 6px",
                   fontSize: 9,
                   letterSpacing: "0.14em",
                   textTransform: "uppercase",
                   fontWeight: 600,
                 }}
               >
-                <ClockIcon size={9} />
+                <ClockIcon size={8} />
                 DUE MAY 20
               </span>
             </div>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center" style={{ flexShrink: 0 }}>
             {["JR", "AL", "KP"].map((id, i) => (
               <span
                 key={id}
                 style={{
-                  marginLeft: i === 0 ? 0 : -6,
+                  marginLeft: i === 0 ? 0 : -5,
                   zIndex: 3 - i,
                   border: "2px solid #141414",
                   borderRadius: "50%",
                   display: "inline-flex",
                 }}
               >
-                <Avatar id={id} size={26} />
+                <Avatar id={id} size={20} />
               </span>
             ))}
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-2.5">
           <div className="flex items-center justify-between">
             <span
               className="data"
@@ -1237,7 +1301,7 @@ function ClientKanban({ rightIn }) {
             <span
               className="data"
               style={{
-                fontSize: 11,
+                fontSize: 10,
                 color: "#f2edd8",
                 fontWeight: 600,
               }}
@@ -1247,8 +1311,8 @@ function ClientKanban({ rightIn }) {
           </div>
           <div
             style={{
-              marginTop: 6,
-              height: 4,
+              marginTop: 4,
+              height: 3,
               background: "#202020",
               position: "relative",
               overflow: "hidden",
@@ -1269,7 +1333,15 @@ function ClientKanban({ rightIn }) {
       </div>
 
       {/* Columns */}
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div
+        className="grid grid-cols-3 gap-2"
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          alignItems: "start",
+        }}
+      >
         <KanbanColumn
           title="To Do"
           count={todoCards.length}
@@ -1295,73 +1367,49 @@ function ClientKanban({ rightIn }) {
 
       {/* Bottom status bar */}
       <div
-        className="mt-4 flex items-center justify-between flex-wrap gap-3"
+        className="flex items-center justify-between flex-wrap gap-2"
         style={{
           background: "#141414",
           border: "1px solid #242424",
-          padding: "10px 14px",
+          padding: "6px 10px",
+          flexShrink: 0,
         }}
       >
-        <div className="flex items-center gap-5 flex-wrap">
-          <span
-            className="data flex items-center gap-2"
-            style={{ fontSize: 10, color: "#8b8b8b", letterSpacing: "0.1em" }}
-          >
+        <div className="flex items-center gap-3 flex-wrap">
+          {[
+            ["#c0392b", "2", "BLOCKERS"],
+            ["#c9a84c", "3", "IN PROGRESS"],
+            ["#7a9e6e", "4", "COMPLETED"],
+          ].map(([col, n, lbl]) => (
             <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: "#c0392b",
-                display: "inline-block",
-              }}
-            />
-            <span style={{ color: "#f2edd8" }}>2</span>
-            <span>BLOCKERS</span>
-          </span>
-          <span
-            className="data flex items-center gap-2"
-            style={{ fontSize: 10, color: "#8b8b8b", letterSpacing: "0.1em" }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: "#c9a84c",
-                display: "inline-block",
-              }}
-            />
-            <span style={{ color: "#f2edd8" }}>3</span>
-            <span>IN PROGRESS</span>
-          </span>
-          <span
-            className="data flex items-center gap-2"
-            style={{ fontSize: 10, color: "#8b8b8b", letterSpacing: "0.1em" }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: "#7a9e6e",
-                display: "inline-block",
-              }}
-            />
-            <span style={{ color: "#f2edd8" }}>4</span>
-            <span>COMPLETED</span>
-          </span>
+              key={lbl}
+              className="data flex items-center gap-1.5"
+              style={{ fontSize: 9, color: "#8b8b8b", letterSpacing: "0.1em" }}
+            >
+              <span
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  background: col,
+                  display: "inline-block",
+                }}
+              />
+              <span style={{ color: "#f2edd8", fontWeight: 600 }}>{n}</span>
+              <span>{lbl}</span>
+            </span>
+          ))}
         </div>
         <span
           className="data"
           style={{
             fontSize: 9,
             color: "#8b8b8b",
-            letterSpacing: "0.16em",
+            letterSpacing: "0.14em",
             textTransform: "uppercase",
           }}
         >
-          Last updated — 2 hours ago
+          Updated 2h ago
         </span>
       </div>
     </div>

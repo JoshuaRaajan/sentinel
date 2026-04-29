@@ -1,0 +1,62 @@
+{
+  "summary": "Frontend-only review of the tightened TwoViews dual-view section. Both panels render exactly 480px tall and pixel-aligned. All structural/styling specs verified except one: kanban card heights exceed the explicit 80px ceiling (max observed 96.2px), because most card titles wrap to two lines at 11px/1.35 line-height plus 8px+8px vertical padding.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ClientKanban / KanbanCard",
+        "issue": "Card heights exceed the 80px ceiling stated in the spec. Measured heights: TO DO cards 96.2px x2, IN PROGRESS cards 96.2px x3, DONE cards 91.7px x4. Required: <= 80px. Root cause: most card titles ('Build contact form with validation', 'Services page — layout, icons, pricing section', 'Mobile responsiveness pass — all breakpoints', 'Client feedback round 2 — homepage revisions', 'Final copywriting review and SEO meta tags', 'Logo variations and brand colour palette', 'Brand guidelines and asset handoff') wrap to 2 lines at fontSize 11px / line-height 1.35. With 8px+8px vertical padding, 5px title marginTop, 6px footer marginTop, plus ~12px tag row + ~14px footer row + 30px two-line title => ~83-96px.",
+        "selector": "[data-testid='client-kanban'] [data-hover]",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Reduce KanbanCard height to <=80px. Options: (a) lower title line-height from 1.35 to ~1.2 and reduce vertical padding to 6px top/bottom, (b) clamp title to 1 line with text-overflow ellipsis, (c) shorten card title strings so they fit one line at the rendered column width (~210px). Today most titles wrap to 2 lines, busting the cap."
+  ],
+  "critical_code_review_comments": [
+    "SubtaskBar component still defined in Landing.jsx (lines 927-958) but no longer rendered anywhere. Dead code — safe to delete.",
+    "KanbanCard inline onMouseEnter/onMouseLeave duplicate the same translateY/border logic; could be replaced with a CSS :hover rule for a single source of truth.",
+    "Landing.jsx is 1713 lines — exceeds the 700-line guideline. Consider splitting TwoViews/ClientKanban/KanbanCard/KanbanColumn into a separate module."
+  ],
+  "verified_specs": {
+    "section_padding_reduced": "section total height 855.5px (well under 1100px) — py-16/20 in effect",
+    "panels_height_480": "left=480, right=480, both at y=3097.67 (perfectly aligned)",
+    "subtaskbar_removed_from_cards": "0 inline 3px progress bars found inside any [data-hover] card",
+    "inline_subtask_strings_present": "0/3, 2/4, 1/3, 4/4, 3/3 all rendered as 'X/Y subtasks' text",
+    "category_tag_style": "fontSize 9px, padding 2px 6px (verified on DEVELOPMENT, CONTENT, DESIGN tags)",
+    "card_title_size": "fontSize 11px verified",
+    "card_avatars_18px": "5 cards have 18x18 avatars (AL, KP, JR, AL, KP)",
+    "header_avatars_20px": "JR, AL, KP all 20x20 in project header stack",
+    "column_count_badges_14": "all three badges (2, 3, 4) computed width=14px, height=14px, border-radius 50%",
+    "column_gap_padding": "all 3 KanbanColumn divs: gap 6px, padding 10px",
+    "columns_overflow_y_auto": "columns wrapper computed overflowY=auto, display=grid",
+    "header_progress_bar_3px": "div with height:3 confirmed in project header",
+    "left_panel_scope_bar_3px": "confirmed",
+    "left_panel_six_tasks": "all 6 task labels present (Build About + Services, Add chatbot, Mobile redesign, Hero animation polish, Wire CMS integration, Add dark mode toggle)",
+    "left_panel_alert_pinned": "'SCOPE CREEP DETECTED — $1,800 UNBILLED' present",
+    "done_cards_opacity_0_7": "last 4 cards opacity 0.7, first 5 opacity 1",
+    "in_progress_gold_border": "IP card has borderLeft #c9a84c 2px (verified on hover too)",
+    "hover_lift_todo": "transform=translateY(-2px), borderColor->#3a3a3a after hover",
+    "hover_lift_in_progress": "transform=translateY(-2px), borderLeft stays gold #c9a84c, other borders ->#3a3a3a",
+    "card_counts": "TO DO 2, IN PROGRESS 3, DONE 4 (total 9)",
+    "backend_health": "/api/health returns 200 via curl ({\"service\":\"sentinel\",\"status\":\"ok\"})"
+  },
+  "updated_files": [],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "92% (1 of 13 numeric specs failed: card height cap)"
+  },
+  "test_credentials": "n/a",
+  "seed_data_creation": "none",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All TwoViews section measurements were taken via Playwright bounding_box() at viewport 1920x4000 after applying classList.add('in','go') on .r/.split/.story-bar to skip entry animation. The single failing spec is KanbanCard height: requirement says <=80px, observed 91.7-96.2px because card titles wrap to 2 lines. After main-agent fix, only need to re-measure card_heights — all other numeric specs already pass. Hover transforms must be tested using page.mouse.move(...) over the card center plus 800-900ms wait (Playwright element.hover() may not always fire mouseenter for these elements; the inline-style read confirms the actual values).",
+  "rca_of_the_issue": "Bug: kanban cards render 91.7-96.2px tall, exceeding the 80px requirement. Reproduction: open landing, scroll to /DUAL VIEW, inspect any [data-hover] card. Cause: card titles like 'Build contact form with validation' wrap to 2 lines at fontSize 11px line-height 1.35 (~30px) + 8px top/bottom padding + ~12px category row + 5px margin + 6px margin + ~14px footer row = ~83-96px. Mitigation: tighten line-height to 1.2 and padding to 6px, or single-line clamp the title with overflow:hidden text-overflow:ellipsis whiteSpace:nowrap, or shorten the title strings so they fit on one line at ~210px column width."
+}
