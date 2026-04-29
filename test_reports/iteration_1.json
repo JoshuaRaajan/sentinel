@@ -1,0 +1,45 @@
+{
+  "summary": "Full-stack testing of Sentinel project intelligence app. Backend: 7/7 pytest passing (health, check-scope IN/OUT/GREY, structure-scope, change-order). Frontend: landing page, 3-step wizard, board with seeded Lumière demo, add-task -> /api/check-scope, scope creep alert, change-order modal with typewriter + COPY button, scope/billing/client navigation all working. ONE CRITICAL VIOLATION found: 'Made with Emergent' badge IS present on every page despite explicit requirement that it must NOT appear.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Global / GlobalLayout", "issue": "'Made with Emergent' badge IS rendered on every page (bottom-right). This explicitly violates the MVP spec: 'Made with Emergent badge does NOT appear anywhere'. The badge is injected by the platform — main agent must add the documented suppression hook (e.g. window.EMERGENT_HIDE_BADGE=true or the equivalent meta/script in /app/frontend/public/index.html) to remove it.", "selector": "a[href*='emergent'], .emergent-badge", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "Change Order email rendering", "issue": "Generated email contains literal 'Hi [Client Name],' placeholder despite the real client name being available in the project. Investigate whether ChangeOrderModal is actually passing project.client into the /api/generate-change-order payload, or whether Claude is being instructed to treat it as a placeholder. Minor — email still copies/sends, but unprofessional.", "affected_selectors": ["[data-testid='change-order-modal']"]}
+    ],
+    "design_issues": [
+      {"screen": "/new (NewProject wizard step 1)", "issues": ["Start Date field uses native browser date picker (<input type='date'>) instead of a styled shadcn/calendar component — inconsistent with the editorial sharp-edge design system and breaks the warm-palette / IBM Plex Mono visual language."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_sentinel_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Remove the 'Made with Emergent' badge from the entire app (all routes). Use the documented suppression mechanism so it is not rendered on /, /new, /app/board, /app/scope, /app/billing, or /app/client.",
+    "Replace native <input type='date'> on /new step 1 (Start Date) with the project's shadcn Calendar/Popover component to keep the editorial design consistent.",
+    "Fix 'Hi [Client Name]' placeholder in change-order email — confirm ChangeOrderModal posts the active project's client name into the payload.client_name field, and tighten the system prompt so Claude substitutes the real value instead of echoing a bracketed placeholder."
+  ],
+  "critical_code_review_comments": [
+    "server.py line 35: LLM_API_KEY falls back through ANTHROPIC_API_KEY before EMERGENT_LLM_KEY — fine, but log which one was selected at startup for debug clarity.",
+    "server.py /check-scope verdict parsing (line 174-180) is brittle: the upper().startswith() loop checks 'OUT_OF_SCOPE' first which is correct ordering, but the second condition `f' {v}' in raw.upper()[:80]` could double-match GREY_AREA inside 'OUT_OF_SCOPE' explanations. Worked in tests but consider tightening to a regex anchored on first token.",
+    "server.py CORS allow_credentials=True with allow_origins='*' is invalid per CORS spec and many browsers reject it — set explicit origins or set credentials False.",
+    "ChangeOrderModal: confirm payload includes project.client; placeholder suggests passing empty/literal string.",
+    "All interactive elements have data-testid — excellent test hygiene."
+  ],
+  "updated_files": [
+    "/app/backend/tests/__init__.py",
+    "/app/backend/tests/test_sentinel_api.py"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "92%"},
+  "test_credentials": "N/A — auth skipped per user choice (localStorage only)",
+  "seed_data_creation": "Lumière Brand Website demo project is auto-seeded by /app/frontend/src/lib/seed.js when /app is first visited. Verified six tasks across TO DO / IN PROGRESS / DONE with correct IN SCOPE / OUT OF SCOPE badges.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest is at /app/backend/tests/test_sentinel_api.py (7 tests, ~19s end-to-end including LLM calls). Use it as regression. Key frontend testids discovered: hero-headline, cta-start-project-nav, np-name/np-client/np-rate/np-hours/np-start/np-next, np-sow, app-shell, nav-board/nav-scope/nav-billing/nav-client-view, add-task-todo, new-task-name-todo, new-task-hours-todo, save-task-todo, creep-alert, creep-generate-co, task-card-{id}, task-badge-{id}, task-change-order-{id}. Save button is save-task-{column} (todo/in_progress/done). The OPEN PROJECT button on wizard step 3 reuses np-next. Change-order modal renders correctly with typewriter + COPY CHANGE ORDER + SEND TO CLIENT PORTAL (mocked toast).",
+  "rca of the issue": "Made with Emergent badge: the platform injects a global badge component unless suppressed. Implementation must add the supported opt-out (commonly window.EMERGENT_HIDE_BADGE = true in index.html before bundle load, or the documented data-attribute on body/root). Current /app/frontend/public/index.html does not include the suppression. Reproduce: visit any route — badge appears bottom-right on landing, /new and all /app/* pages. Mitigation: add the platform's documented suppression flag in /app/frontend/public/index.html (or call the SDK helper if exposed) and rebuild."
+}
