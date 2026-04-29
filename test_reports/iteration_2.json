@@ -1,0 +1,34 @@
+{
+  "summary": "Frontend-only retest of Sentinel landing page after complete dark Notion-theme redesign. Ran a comprehensive Playwright spec covering all sections, copy, palette, animations, theme-toggle hygiene, and badge suppression. 86/86 effective checks passed (the 3 'failed' assertions for testimonial author names are false positives — names are present but rendered uppercase via .label text-transform). Backend smoke (/api/health, /api/check-scope) verified 200 OK.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_sentinel_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Landing.jsx is ~1140 lines — consider splitting subcomponents (Navbar/Hero/Ticker/Story/HowItWorks/TwoViews/Pricing/Testimonials/Footer) into individual files under src/pages/landing/ for readability; not blocking.",
+    "Hero card outer wrapper has the always-on `go` class (per agent context note) which means the scope-bar 0→73% animation fires on initial render regardless of viewport — fine for desktop; on slow mobile the animation may complete before the user scrolls into view but that is acceptable.",
+    "Testimonial author names (R. Mehta / S. Kim / P. Osei) are wrapped in a `.label` class which forces uppercase text-transform. Cosmetic — original copy reads as title-case but is still legible. If exact-case fidelity matters per spec, drop the .label class on the author line and keep only the muted color/letterspacing.",
+    "Cursor-dot DOM node is appended to document.body and removed on unmount — clean. matchMedia('(pointer: coarse)') early-return correctly disables it on touch devices.",
+    "Reveal observer adds .in to .r/.r-scale/.r-left elements — verified working (15 elements observed in-class after initial scroll).",
+    "Made-with-Emergent badge suppression confirmed working (no visible iframe/anchor on landing route).",
+    "/app and /new routes correctly do NOT receive body.landing class, preventing dark-scrollbar leakage into the warm in-product theme."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (smoke)", "frontend": "100%"},
+  "test_credentials": "N/A — no auth on landing",
+  "seed_data_creation": "None added in this iteration. Previous Lumière demo seed via /app remains intact.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Landing redesign is fully verified. Key testids: landing-page, landing-navbar, hero-section, hero-badge, hero-headline, hero-live-panel, cta-start-project, cta-start-project-nav, cta-how-it-works, live-counter-bar, story-section, story-cta, story-bar, how-it-works-section, two-views-section, pricing-section, pricing-{solo|agency|war-room}, cta-{solo|agency|war-room}, testimonials-section, landing-footer, signin-link, navlink-{how-it-works|pricing|client-portal}. Body class 'landing' is added on Landing mount and removed on unmount; verified no leakage to /app or /new. All hero-card OUT OF SCOPE / IN SCOPE badges are solid spans rendered unconditionally (no animation gate). Color palette confirmed: bg rgb(25,25,25) #191919, gold rgb(201,168,76) #c9a84c, text cream rgb(242,237,216) #f2edd8.",
+  "rca of the issue": "No issues to RCA — redesign meets all listed acceptance criteria. Open items from iteration_1 (change-order email '[Client Name]' placeholder and /new native date picker) were not in scope of this redesign request and remain unaddressed; main agent should track separately."
+}

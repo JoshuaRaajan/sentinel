@@ -1,0 +1,423 @@
+/* Sentinel landing page — Notion-dark redesign.
+   Scoped to <body class="landing"> + the .landing-dark wrapper so the warm
+   in-product theme stays untouched. */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&display=swap");
+
+/* ─── Theme tokens ────────────────────────────────────────────────────── */
+.landing-dark {
+  --bg: #191919;
+  --surface: #202020;
+  --surface-2: #252525;
+  --line: #2f2f2f;
+  --line-bright: #3a3a3a;
+  --text: #f2edd8;
+  --muted: #8b8b8b;
+  --gold: #c9a84c;
+  --gold-soft: rgba(201, 168, 76, 0.12);
+  --sage: #7a9e6e;
+  --red: #c0392b;
+  --white: #ffffff;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, sans-serif;
+  font-feature-settings: "ss01";
+}
+
+.landing-dark .display {
+  font-family: "Fraunces", "Instrument Serif", serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  line-height: 0.95;
+}
+
+.landing-dark .label {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+}
+
+.landing-dark .data {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+/* ─── Body class toggled by Landing component ─────────────────────────── */
+body.landing {
+  background: #191919;
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar — only when landing class active so app stays clean */
+body.landing::-webkit-scrollbar {
+  width: 10px;
+}
+body.landing::-webkit-scrollbar-track {
+  background: #191919;
+}
+body.landing::-webkit-scrollbar-thumb {
+  background: #2f2f2f;
+  border: 2px solid #191919;
+}
+body.landing::-webkit-scrollbar-thumb:hover {
+  background: #c9a84c;
+}
+
+/* ─── Page-load fade ──────────────────────────────────────────────────── */
+.landing-dark {
+  animation: page-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ─── Scroll reveal primitives ────────────────────────────────────────── */
+.r {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.r.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.r-scale {
+  opacity: 0;
+  transform: scale(0.96) translateY(20px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.r-scale.in {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+.r-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.r-left.in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Stagger delays — applied via data-d attribute */
+[data-d="1"] {
+  transition-delay: 80ms;
+}
+[data-d="2"] {
+  transition-delay: 160ms;
+}
+[data-d="3"] {
+  transition-delay: 240ms;
+}
+[data-d="4"] {
+  transition-delay: 320ms;
+}
+[data-d="5"] {
+  transition-delay: 400ms;
+}
+[data-d="6"] {
+  transition-delay: 480ms;
+}
+[data-d="7"] {
+  transition-delay: 560ms;
+}
+[data-d="8"] {
+  transition-delay: 640ms;
+}
+
+/* ─── Marquee ticker ──────────────────────────────────────────────────── */
+.marquee {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+}
+.marquee__track {
+  display: flex;
+  flex: 0 0 auto;
+  animation: marquee 36s linear infinite;
+  gap: 64px;
+  padding-right: 64px;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ─── Hero floating product card ──────────────────────────────────────── */
+.hero-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 28px;
+  box-shadow:
+    0 30px 80px -40px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.02) inset;
+  animation: hero-float 9s ease-in-out infinite;
+}
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.scope-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #e0c068);
+  width: 0%;
+}
+.hero-card.go .scope-fill {
+  animation: scope-grow 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+@keyframes scope-grow {
+  to {
+    width: 73%;
+  }
+}
+
+/* pop-tag class is reserved for future entrance animations.
+   Keeping the keyframe definition for reuse — currently unused in JSX. */
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) rotate(-4deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08) rotate(1.5deg);
+  }
+  80% {
+    transform: scale(0.97) rotate(-0.5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────────── */
+.btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    color 0.4s,
+    border-color 0.4s;
+  isolation: isolate;
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: translateX(-101%);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+}
+.btn:hover::before {
+  transform: translateX(0);
+}
+.btn-primary {
+  background: var(--gold);
+  color: #1a1a18;
+}
+.btn-primary::before {
+  background: var(--text);
+}
+.btn-primary:hover {
+  color: #1a1a18;
+}
+.btn-ghost {
+  border-color: var(--line-bright);
+  color: var(--text);
+  background: transparent;
+}
+.btn-ghost:hover {
+  color: #1a1a18;
+}
+
+/* Card hover lift */
+.lift {
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s,
+    background-color 0.4s;
+}
+.lift:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+}
+
+/* Pulsing red FREE tag */
+.pulse-red {
+  animation: pulse-red 2.6s ease-in-out infinite;
+}
+@keyframes pulse-red {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* Story bottom progress bar */
+.story-bar {
+  height: 6px;
+  background: var(--surface-2);
+  position: relative;
+  overflow: hidden;
+}
+.story-bar > span {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  width: 0;
+}
+.story-bar.go > span {
+  animation: story-fill 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+}
+@keyframes story-fill {
+  to {
+    width: 100%;
+  }
+}
+
+/* Provider/client split panel reveal */
+.split {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.split.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.split.left.in {
+  transition-delay: 0ms;
+}
+.split.right.in {
+  transition-delay: 160ms;
+}
+.split-flag {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.split.in .split-flag {
+  animation: pop-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.split.in .split-flag.f1 {
+  animation-delay: 0.7s;
+}
+.split.in .split-flag.f2 {
+  animation-delay: 0.95s;
+}
+
+/* Featured pricing card glow */
+.pricing-feature {
+  position: relative;
+}
+.pricing-feature::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-top: 2px solid var(--gold);
+  pointer-events: none;
+}
+
+/* Dot grid */
+.dotgrid-dark {
+  background-image: radial-gradient(rgba(242, 237, 216, 0.06) 1px, transparent 1px);
+  background-size: 26px 26px;
+  background-position: 0 0;
+}
+
+/* Trailing cursor dot */
+.cursor-dot {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-100px, -100px);
+  transition:
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.25s,
+    height 0.25s,
+    background 0.25s,
+    opacity 0.3s;
+  mix-blend-mode: difference;
+  opacity: 0.85;
+}
+.cursor-dot.is-hover {
+  width: 32px;
+  height: 32px;
+  opacity: 0.5;
+}
+@media (hover: none), (pointer: coarse) {
+  .cursor-dot {
+    display: none;
+  }
+}
+
+/* Subtle horizontal divider for sections */
+.hr-soft {
+  height: 1px;
+  background: var(--line);
+  width: 100%;
+}
+
+/* Pricing list animate on hover */
+.feature-row {
+  opacity: 0.85;
+  transition: opacity 0.3s;
+}
+.lift:hover .feature-row {
+  opacity: 1;
+}
