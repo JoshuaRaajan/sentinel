@@ -754,74 +754,15 @@ function TwoViews() {
             ref={rightRef}
             className={`split right ${rightIn ? "in" : ""}`}
             style={{
-              background: "var(--surface-2)",
+              background: "#191919",
               border: "1px solid var(--line)",
-              padding: "32px 28px",
+              padding: 24,
             }}
           >
             <div className="label" style={{ color: "var(--muted)" }}>
               / WHAT THEY SEE
             </div>
-            <div
-              className="display mt-4"
-              style={{ fontSize: 26, color: "var(--text)" }}
-            >
-              Lumière Brand Website
-            </div>
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              {["TO DO", "IN PROGRESS", "DONE"].map((c, i) => (
-                <div
-                  key={c}
-                  style={{
-                    border: "1px solid var(--line)",
-                    padding: 12,
-                    background: "var(--surface)",
-                  }}
-                >
-                  <div className="label" style={{ color: "var(--muted)" }}>
-                    {c}
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    <div
-                      className="r-scale text-[13px]"
-                      style={{
-                        color: "var(--text)",
-                        border: "1px solid var(--line)",
-                        padding: "8px 10px",
-                        background: "var(--surface-2)",
-                        transition: `all .7s cubic-bezier(.16,1,.3,1) ${0.4 + i * 0.18}s`,
-                        opacity: rightIn ? 1 : 0,
-                        transform: rightIn ? "translateY(0)" : "translateY(8px)",
-                      }}
-                    >
-                      Build About page
-                    </div>
-                    {c === "DONE" && (
-                      <div
-                        className="text-[13px]"
-                        style={{
-                          color: "var(--text)",
-                          border: "1px solid var(--line)",
-                          padding: "8px 10px",
-                          background: "var(--surface-2)",
-                          transition: `all .7s cubic-bezier(.16,1,.3,1) ${0.4 + i * 0.18 + 0.15}s`,
-                          opacity: rightIn ? 1 : 0,
-                          transform: rightIn ? "translateY(0)" : "translateY(8px)",
-                        }}
-                      >
-                        Wireframes
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div
-              className="mt-6 label"
-              style={{ color: "var(--sage)", letterSpacing: "0.18em" }}
-            >
-              STATUS — ON TRACK
-            </div>
+            <ClientKanban rightIn={rightIn} />
           </div>
         </div>
 
@@ -844,6 +785,590 @@ function TwoViews() {
     </section>
   );
 }
+
+/* ── Client kanban (right side of dual view) ────────────────────────── */
+
+const CAT = {
+  DESIGN: { bg: "rgba(122,158,110,0.12)", fg: "#7a9e6e" },
+  DEVELOPMENT: { bg: "rgba(201,168,76,0.12)", fg: "#c9a84c" },
+  REVIEW: { bg: "rgba(100,130,200,0.12)", fg: "#7a9ecc" },
+  CONTENT: { bg: "rgba(192,100,57,0.12)", fg: "#c07843" },
+};
+
+const AVATARS = {
+  JR: { bg: "rgba(122,158,110,0.22)", fg: "#a8c79c" },
+  AL: { bg: "rgba(201,168,76,0.22)", fg: "#e1c878" },
+  KP: { bg: "rgba(192,120,67,0.22)", fg: "#e0a585" },
+};
+
+const PRI = { high: "#c0392b", med: "#c9a84c", low: "#7a9e6e" };
+
+function ClockIcon({ size = 11 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ flexShrink: 0 }}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+function CheckIcon({ size = 11 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ flexShrink: 0 }}
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function Avatar({ id, size = 22 }) {
+  const a = AVATARS[id];
+  return (
+    <span
+      className="data"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: a.bg,
+        color: a.fg,
+        border: `1px solid ${a.fg}55`,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: size === 22 ? 9 : 10,
+        fontWeight: 600,
+        letterSpacing: "0.02em",
+        flexShrink: 0,
+      }}
+    >
+      {id}
+    </span>
+  );
+}
+
+function CategoryTag({ cat }) {
+  const c = CAT[cat] || CAT.DESIGN;
+  return (
+    <span
+      className="data"
+      style={{
+        background: c.bg,
+        color: c.fg,
+        border: `1px solid ${c.fg}33`,
+        padding: "2px 6px",
+        fontSize: 9,
+        letterSpacing: "0.16em",
+        textTransform: "uppercase",
+        fontWeight: 600,
+        display: "inline-block",
+      }}
+    >
+      {cat}
+    </span>
+  );
+}
+
+function SubtaskBar({ done, total }) {
+  const pct = total ? (done / total) * 100 : 0;
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        style={{
+          flex: 1,
+          height: 3,
+          background: "#2a2a2a",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: `${pct}%`,
+            background: done === total ? "#7a9e6e" : "rgba(242,237,216,0.55)",
+            transition: "width .8s cubic-bezier(.16,1,.3,1)",
+          }}
+        />
+      </div>
+      <span
+        className="data"
+        style={{ fontSize: 9, color: "#8b8b8b", letterSpacing: "0.04em" }}
+      >
+        {done}/{total}
+      </span>
+    </div>
+  );
+}
+
+function KanbanCard({ card, index, rightIn }) {
+  const isInProgress = card.col === "ip";
+  const done = card.col === "done";
+  const pri = PRI[card.prio || "low"];
+  return (
+    <div
+      style={{
+        background: "#1e1e1e",
+        border: "1px solid #2a2a2a",
+        borderLeft: isInProgress ? "2px solid #c9a84c" : "1px solid #2a2a2a",
+        padding: 10,
+        opacity: rightIn ? (done ? 0.7 : 1) : 0,
+        transform: rightIn ? "translateY(0)" : "translateY(8px)",
+        transition: `opacity .7s cubic-bezier(.16,1,.3,1) ${0.45 + index * 0.06}s, transform .7s cubic-bezier(.16,1,.3,1) ${0.45 + index * 0.06}s, border-color .3s, background-color .3s`,
+        cursor: "default",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.borderColor = "#3a3a3a";
+        if (isInProgress) e.currentTarget.style.borderLeftColor = "#c9a84c";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.borderColor = "#2a2a2a";
+        if (isInProgress) e.currentTarget.style.borderLeftColor = "#c9a84c";
+      }}
+      data-hover
+    >
+      <div className="flex items-center justify-between">
+        <CategoryTag cat={card.cat} />
+        {card.prio && !done && (
+          <span
+            title={`${card.prio} priority`}
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: pri,
+              display: "inline-block",
+              boxShadow: `0 0 0 2px ${pri}22`,
+            }}
+          />
+        )}
+      </div>
+
+      <div
+        className="mt-2"
+        style={{
+          fontSize: 12,
+          lineHeight: 1.4,
+          color: "#f2edd8",
+          fontWeight: 500,
+        }}
+      >
+        {card.title}
+      </div>
+
+      {card.subs && (
+        <div className="mt-2.5">
+          <SubtaskBar done={card.subs[0]} total={card.subs[1]} />
+        </div>
+      )}
+
+      <div
+        className="mt-3 flex items-center justify-between"
+        style={{
+          paddingTop: 8,
+          borderTop: "1px solid #262626",
+        }}
+      >
+        <span
+          className="data flex items-center gap-1.5"
+          style={{
+            fontSize: 10,
+            color: done ? "#7a9e6e" : "#8b8b8b",
+            letterSpacing: "0.04em",
+          }}
+        >
+          {done ? <CheckIcon /> : <ClockIcon />}
+          <span>{done ? card.doneDate : card.due}</span>
+        </span>
+        {card.who && <Avatar id={card.who} />}
+      </div>
+    </div>
+  );
+}
+
+function KanbanColumn({ title, count, cards, rightIn, startIndex }) {
+  return (
+    <div
+      style={{
+        background: "#141414",
+        border: "1px solid #242424",
+        padding: 10,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+      }}
+    >
+      <div
+        className="flex items-center justify-between"
+        style={{ marginBottom: 4 }}
+      >
+        <span
+          className="data"
+          style={{
+            fontSize: 10,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "#f2edd8",
+            fontWeight: 600,
+          }}
+        >
+          {title}
+        </span>
+        <span
+          className="data"
+          style={{
+            fontSize: 9,
+            background: "#202020",
+            border: "1px solid #2a2a2a",
+            padding: "1px 6px",
+            color: "#8b8b8b",
+          }}
+        >
+          {count}
+        </span>
+      </div>
+      {cards.map((c, i) => (
+        <KanbanCard
+          key={c.title}
+          card={c}
+          index={startIndex + i}
+          rightIn={rightIn}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ClientKanban({ rightIn }) {
+  const todoCards = [
+    {
+      cat: "DEVELOPMENT",
+      title: "Build contact form with validation",
+      subs: [0, 3],
+      due: "May 18",
+      prio: "med",
+      who: "AL",
+      col: "todo",
+    },
+    {
+      cat: "CONTENT",
+      title: "Final copywriting review and SEO meta tags",
+      due: "May 19",
+      prio: "low",
+      who: "KP",
+      col: "todo",
+    },
+  ];
+  const ipCards = [
+    {
+      cat: "DESIGN",
+      title: "Services page — layout, icons, pricing section",
+      subs: [2, 4],
+      due: "May 14",
+      prio: "high",
+      who: "JR",
+      col: "ip",
+    },
+    {
+      cat: "DEVELOPMENT",
+      title: "Mobile responsiveness pass — all breakpoints",
+      subs: [1, 3],
+      due: "May 15",
+      prio: "high",
+      who: "AL",
+      col: "ip",
+    },
+    {
+      cat: "REVIEW",
+      title: "Client feedback round 2 — homepage revisions",
+      due: "May 13",
+      prio: "med",
+      who: "KP",
+      col: "ip",
+    },
+  ];
+  const doneCards = [
+    {
+      cat: "DESIGN",
+      title: "Wireframes — all 8 pages approved",
+      subs: [4, 4],
+      doneDate: "May 2",
+      col: "done",
+    },
+    {
+      cat: "DEVELOPMENT",
+      title: "Homepage build — hero, nav, footer",
+      subs: [3, 3],
+      doneDate: "May 7",
+      col: "done",
+    },
+    {
+      cat: "CONTENT",
+      title: "Brand guidelines and asset handoff",
+      doneDate: "May 5",
+      col: "done",
+    },
+    {
+      cat: "DESIGN",
+      title: "Logo variations and brand colour palette",
+      doneDate: "Apr 28",
+      col: "done",
+    },
+  ];
+
+  return (
+    <div className="mt-5" data-testid="client-kanban">
+      {/* Project header */}
+      <div
+        style={{
+          background: "#141414",
+          border: "1px solid #242424",
+          padding: 16,
+        }}
+      >
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div
+              className="display"
+              style={{
+                fontSize: 22,
+                color: "#f2edd8",
+                lineHeight: 1.1,
+              }}
+            >
+              Lumière Brand Website
+            </div>
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              <span
+                className="data flex items-center gap-1.5"
+                style={{
+                  background: "rgba(122,158,110,0.12)",
+                  color: "#7a9e6e",
+                  border: "1px solid rgba(122,158,110,0.45)",
+                  padding: "3px 8px",
+                  fontSize: 9,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                }}
+              >
+                <span
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: "50%",
+                    background: "#7a9e6e",
+                    display: "inline-block",
+                  }}
+                />
+                ON TRACK
+              </span>
+              <span
+                className="data flex items-center gap-1.5"
+                style={{
+                  background: "rgba(201,168,76,0.12)",
+                  color: "#c9a84c",
+                  border: "1px solid rgba(201,168,76,0.45)",
+                  padding: "3px 8px",
+                  fontSize: 9,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                }}
+              >
+                <ClockIcon size={9} />
+                DUE MAY 20
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center">
+            {["JR", "AL", "KP"].map((id, i) => (
+              <span
+                key={id}
+                style={{
+                  marginLeft: i === 0 ? 0 : -6,
+                  zIndex: 3 - i,
+                  border: "2px solid #141414",
+                  borderRadius: "50%",
+                  display: "inline-flex",
+                }}
+              >
+                <Avatar id={id} size={26} />
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-center justify-between">
+            <span
+              className="data"
+              style={{
+                fontSize: 9,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "#8b8b8b",
+              }}
+            >
+              Overall progress
+            </span>
+            <span
+              className="data"
+              style={{
+                fontSize: 11,
+                color: "#f2edd8",
+                fontWeight: 600,
+              }}
+            >
+              68%
+            </span>
+          </div>
+          <div
+            style={{
+              marginTop: 6,
+              height: 4,
+              background: "#202020",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: rightIn ? "68%" : "0%",
+                background:
+                  "linear-gradient(90deg, #7a9e6e 0%, #c9a84c 100%)",
+                transition: "width 1.6s cubic-bezier(.16,1,.3,1) .3s",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Columns */}
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        <KanbanColumn
+          title="To Do"
+          count={todoCards.length}
+          cards={todoCards}
+          rightIn={rightIn}
+          startIndex={0}
+        />
+        <KanbanColumn
+          title="In Progress"
+          count={ipCards.length}
+          cards={ipCards}
+          rightIn={rightIn}
+          startIndex={todoCards.length}
+        />
+        <KanbanColumn
+          title="Done"
+          count={doneCards.length}
+          cards={doneCards}
+          rightIn={rightIn}
+          startIndex={todoCards.length + ipCards.length}
+        />
+      </div>
+
+      {/* Bottom status bar */}
+      <div
+        className="mt-4 flex items-center justify-between flex-wrap gap-3"
+        style={{
+          background: "#141414",
+          border: "1px solid #242424",
+          padding: "10px 14px",
+        }}
+      >
+        <div className="flex items-center gap-5 flex-wrap">
+          <span
+            className="data flex items-center gap-2"
+            style={{ fontSize: 10, color: "#8b8b8b", letterSpacing: "0.1em" }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "#c0392b",
+                display: "inline-block",
+              }}
+            />
+            <span style={{ color: "#f2edd8" }}>2</span>
+            <span>BLOCKERS</span>
+          </span>
+          <span
+            className="data flex items-center gap-2"
+            style={{ fontSize: 10, color: "#8b8b8b", letterSpacing: "0.1em" }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "#c9a84c",
+                display: "inline-block",
+              }}
+            />
+            <span style={{ color: "#f2edd8" }}>3</span>
+            <span>IN PROGRESS</span>
+          </span>
+          <span
+            className="data flex items-center gap-2"
+            style={{ fontSize: 10, color: "#8b8b8b", letterSpacing: "0.1em" }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "#7a9e6e",
+                display: "inline-block",
+              }}
+            />
+            <span style={{ color: "#f2edd8" }}>4</span>
+            <span>COMPLETED</span>
+          </span>
+        </div>
+        <span
+          className="data"
+          style={{
+            fontSize: 9,
+            color: "#8b8b8b",
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+          }}
+        >
+          Last updated — 2 hours ago
+        </span>
+      </div>
+    </div>
+  );
+}
+
+
 
 /* ════════════════════════════════════════════════════════════════════════ */
 
