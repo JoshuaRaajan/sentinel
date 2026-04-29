@@ -107,7 +107,12 @@ CHANGE_ORDER_SYSTEM = (
     "behalf of an agency or freelancer. Firm but relationship-preserving. "
     "Reference the original agreement, state what was added, give cost and "
     "timeline impact, request approval. Never apologetic. Never aggressive. "
-    "Professional, clear, direct."
+    "Professional, clear, direct.\n\n"
+    "CRITICAL: Use the literal CLIENT name and PROJECT name provided in the "
+    "user message. Never output placeholders like [Client Name], [Your Name], "
+    "[Date], or any bracketed substitution token. Sign the email simply with "
+    "'Best regards,' on its own line followed by 'Project Team' — do NOT "
+    "invent a personal name."
 )
 
 STRUCTURE_SYSTEM = (

@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { upsertProject, setActiveProjectId } from "@/lib/storage";
 import { structureScope } from "@/lib/api";
 import { toast } from "sonner";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -180,13 +182,37 @@ export default function NewProject() {
                 />
               </Field>
               <Field label="START DATE">
-                <input
-                  type="date"
-                  value={form.startDate}
-                  onChange={(e) => update("startDate", e.target.value)}
-                  className="w-full bg-surface border border-line px-3 py-3 font-mono text-[14px] focus:outline-none focus:border-ink"
-                  data-testid="np-start"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="w-full text-left bg-surface border border-line px-3 py-3 font-mono text-[14px] text-ink hover:border-ink focus:outline-none focus:border-ink"
+                      data-testid="np-start"
+                    >
+                      {form.startDate
+                        ? new Date(form.startDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : "PICK A DATE"}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    className="w-auto p-0 border border-line bg-surface"
+                    style={{ borderRadius: 0 }}
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={form.startDate ? new Date(form.startDate) : undefined}
+                      onSelect={(d) => {
+                        if (d) update("startDate", d.toISOString().slice(0, 10));
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </Field>
             </div>
           </div>
